@@ -4,7 +4,7 @@
 
 	<groupId>org.matthiaszimmermann.ethereum</groupId>
 	<artifactId>epwg</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Paper Wallet Generator</name>
@@ -26,6 +26,11 @@
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
 			<version>3.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.48</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

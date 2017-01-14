@@ -3,7 +3,7 @@ package org.matthiaszimmermann.ethereum.pwg;
 public class WalletPageUtility extends HtmlUtility {
 	
 	// TODO verify version with the one in the pom.xml
-	public static final String VERSION = "0.1.0-SNAPSHOT";
+	public static final String VERSION = "0.2.0-SNAPSHOT";
 	public static final String REPOSITORY = "https://github.com/matthiaszimmermann/ethereum-paper-wallet";
 
 	public static final String TITLE = "Ethereum Paper Wallet";
@@ -63,8 +63,6 @@ public class WalletPageUtility extends HtmlUtility {
 
 		// ethereum logo
 		HtmlUtility.addOpenDiv(html, CSS_COLUMN);
-		// TODO test + cleanup
-//		InputStream logo = Application.class.getResourceAsStream(ETHEREUM_LOGO);
 		byte [] logo = FileUtility.getResourceAsBytes(ETHEREUM_LOGO);
 		HtmlUtility.addEncodedImage(html, logo, 256, CSS_IMG_ADDRESS);
 		HtmlUtility.addCloseDiv(html);
