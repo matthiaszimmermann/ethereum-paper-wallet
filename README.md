@@ -1,4 +1,4 @@
-# Paper Wallet Generator for Etehereum
+# Paper Wallet Generator for Ethereum
 
 ## Application Description
 
