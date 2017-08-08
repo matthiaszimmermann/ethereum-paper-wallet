@@ -8,10 +8,13 @@ import java.nio.file.Files;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.Wallet;
 import org.web3j.crypto.WalletFile;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.ObjectMapperFactory;
+import org.web3j.protocol.core.methods.request.RawTransaction;
+import org.web3j.utils.Numeric;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,6 +23,12 @@ public class PaperWallet {
 	public static final int PHRASE_SIZE_DEFAULT = 8;
 	public static final String WALLET_OK = "OK";
 	public static final String WALLET_ERROR = "ERROR";
+	
+	// 20 GWei as of august '17. check http://ethgasstation.info/ or similar
+	public static BigInteger GAS_PRICE_DEFAULT = BigInteger.valueOf(20_000_000_000L);
+	
+	// 21'000 gas. check https://ethereum.stackexchange.com/questions/5845/how-are-ethereum-transaction-costs-calculated
+	public static BigInteger GAS_LIMIT_DEFAULT = BigInteger.valueOf(21_000L);
 
 	private static PassPhraseUtility passPhraseUtility = new PassPhraseUtility();
 
@@ -27,6 +36,20 @@ public class PaperWallet {
 	private String fileName;
 	private String pathToFile;
 	private String passPhrase;
+	
+	public PaperWallet(String passPhrase, File walletFile) {
+		// check if provided file exists
+		if(!walletFile.exists() || walletFile.isDirectory()) { 
+			System.err.println(String.format("%s file does not exist or is a directory", WALLET_ERROR));
+		}
+		
+		try {
+			credentials = WalletUtils.loadCredentials(passPhrase, walletFile);
+		} 
+		catch (Exception e) {
+			System.err.println(String.format("%s failed to load credentials with provided password", WALLET_ERROR));
+		}
+	}
 
 	public PaperWallet(String passPhrase, String pathToFile) throws Exception {
 		this.passPhrase = setPassPhrase(passPhrase);
@@ -39,6 +62,14 @@ public class PaperWallet {
 		catch (Exception e) {
 			throw new Exception("Failed to create account", e);
 		}
+	}
+	
+	public String createOfflineTx(String toAddress, BigInteger gasPrice, BigInteger gasLimit, BigInteger amount, BigInteger nonce) {
+		RawTransaction rawTransaction  = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, amount);
+		byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+		String hexValue = Numeric.toHexString(signedMessage);
+		
+		return hexValue;
 	}
 
 	public static String getPathToFileDefault() {

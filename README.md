@@ -29,7 +29,7 @@ The result of the Maven build is an executable JAR file.
 Use the following command to create a paper wallet.
 
 ```
-java -jar target/epwg-0.2.0-SNAPSHOT.jar -d C:\Users\mzi\AppData\Local\Temp -p 'test pass phrase'
+java -jar target/epwg-0.3.0-SNAPSHOT.jar -d C:\Users\mzi\AppData\Local\Temp -p 'test pass phrase'
 ```
 
 This will lead to some information on the console
@@ -54,7 +54,7 @@ Three file are created by the tool as indicated in the output above
 The tool also allows to verify a provided wallet file against a provided pass phrase.
 
 ```
-java -jar target/epwg-0.2.0-SNAPSHOT.jar -p 'test pass phrase' -v  C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json
+java -jar target/epwg-0.3.0-SNAPSHOT.jar -p 'test pass phrase' -w  "C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json" -v
 ```
 
 This will lead to some information on the console
@@ -65,6 +65,27 @@ wallet file successfully verified
 wallet file: C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json
 pass phrase: test pass phrase
 ```
+
+### Creating an offline Transaction
+
+The tool further allows to create an offline transaction for provided wallet details
+
+```
+java -jar target/epwg-0.3.0-SNAPSHOT.jar -p 'test pass phrase' -w  "C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json" -t -t 0x025403ff4c543c660423543a9c5a3cc2a02e2f1f -a 0.0123
+```
+
+leading to the following output.
+
+```
+Target address: 0x025403ff4c543c660423543a9c5a3cc2a02e2f1f
+Amount [Ether]: 0.0123
+Nonce: 0
+Gas price [Wei]: 20000000000
+Gas limit [Wei]: 21000
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xf86b808504a817c80082520894025403ff4c543c660423543a9c5a3cc2a02e2f1f872bb2c8eabcc000801ba08c5b25a10edb8e72518f4e6f51527df718d090f80cefcf024669340fe29cf78aa0124a95546dc897b6987c2b05efd2be7ed976318174a6bf9300d6f11c1d5d2da1"],"id":1}' -H "Content-Type: application/json" https://mainnet.infura.io/<your-infura-token>
+```
+
+The last line may be used to send the transaction to the Etherem network (using your infura token). 
 
 ## Dependencies
 

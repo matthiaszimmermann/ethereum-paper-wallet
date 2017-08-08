@@ -93,7 +93,7 @@ public class ApplicationTest {
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_ok.json");
 		FileUtility.saveToFile(WALLET_JSON_OK, jsonFile);
 		
-		String [] args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, WALLET_JSON_PASS_PHRASE, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, WALLET_JSON_PASS_PHRASE, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.VERIFY_OK);
@@ -120,7 +120,7 @@ public class ApplicationTest {
 
 		// verify wallet file
 		String jsonFile = okMessageToJsonFileName(message);
-		args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_VERIFY, jsonFile};
+		args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		app = new Application();
 		message = app.run(args);
 		isOkMessage = message.startsWith(Application.VERIFY_OK);
@@ -136,7 +136,7 @@ public class ApplicationTest {
 
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_missing_file.json");
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
@@ -154,7 +154,7 @@ public class ApplicationTest {
 		FileUtility.saveToFile(WALLET_JSON_OK, jsonFile);
 		
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE + " bad";
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
@@ -173,7 +173,7 @@ public class ApplicationTest {
 		FileUtility.saveToFile("", jsonFile);
 		
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
@@ -192,7 +192,7 @@ public class ApplicationTest {
 		FileUtility.saveToFile(WALLET_JSON_OK.substring(0, WALLET_JSON_OK.length() - 23), jsonFile);
 		
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
@@ -211,7 +211,7 @@ public class ApplicationTest {
 		FileUtility.saveToFile(WALLET_JSON_CORRUPT_1, jsonFile);
 		
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
@@ -230,7 +230,7 @@ public class ApplicationTest {
 		FileUtility.saveToFile(WALLET_JSON_CORRUPT_2, jsonFile);
 		
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_VERIFY, jsonFile};
+		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
