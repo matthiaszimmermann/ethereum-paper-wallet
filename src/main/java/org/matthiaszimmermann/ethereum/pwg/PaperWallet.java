@@ -8,12 +8,12 @@ import java.nio.file.Files;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.Wallet;
 import org.web3j.crypto.WalletFile;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.ObjectMapperFactory;
-import org.web3j.protocol.core.methods.request.RawTransaction;
 import org.web3j.utils.Numeric;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
