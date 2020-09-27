@@ -2,6 +2,7 @@ package org.matthiaszimmermann.ethereum.pwg;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,21 +31,19 @@ public class ApplicationTest {
 			tmpFilePath = p.substring(0, p.lastIndexOf(File.separator));
 			tmpFile.add(f);
 
-		} 
-		catch (IOException e) {
+		} catch (IOException e) {
 			setupFailed = true;
 		}
 	}
 
 	@AfterClass
 	public static void tearDown() {
-		for(File f: tmpFile) {
+		for (File f : tmpFile) {
 			System.out.print("deleting temp file " + f.getAbsolutePath() + " ... ");
-			if(f != null && f.exists()) {
+			if (f != null && f.exists()) {
 				f.delete();
 				System.out.println(" done");
-			}
-			else {
+			} else {
 				System.out.println(" no such file found");
 			}
 		}
@@ -57,20 +56,21 @@ public class ApplicationTest {
 
 	@Test
 	public void createWalletHappyCase() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
 
 		String passPhrase = "test pass phrase";
-		String [] args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase};
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
 
 		Assert.assertTrue(String.format("failed to write paper wallet to directory %s: expected message '%s ...', actual message: '%s'", tmpFilePath, Application.CREATE_OK, message), isOkMessage);
 
-		if(isOkMessage) {
+		if (isOkMessage) {
 			File jsonFile = new File(okMessageToJsonFileName(message));
+			System.out.println(jsonFile);
 			File htmlFile = deriveFile(jsonFile, Application.EXT_HTML);
 			File pngFile = deriveFile(jsonFile, Application.EXT_PNG);
 
@@ -85,15 +85,46 @@ public class ApplicationTest {
 	}
 
 	@Test
-	public void verifyWalletHappyCase() {
-		if(setupFailed) {
+	public void createWalletBip44HappyCase() {
+		if (setupFailed) {
 			return;
 		}
-		
+
+		String passPhrase = "test pass phrase";
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET_BIP44, Application.SWITCH_MNEMONICS };
+		Application app = new Application();
+		String message = app.run(args);
+		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
+
+		Assert.assertTrue(String.format("failed to write paper wallet to directory %s: expected message '%s ...', actual message: '%s'", tmpFilePath, Application.CREATE_OK, message), isOkMessage);
+		Assert.assertTrue(String.format("failed to creating BIP44 Wallet %s", Application.BIP44_WALLET), message.contains(Application.BIP44_WALLET));
+
+		if (isOkMessage) {
+			File jsonFile = new File(okMessageToJsonFileBip44(message));
+			File htmlFile = deriveFile(jsonFile, Application.EXT_HTML);
+			File pngFile = deriveFile(jsonFile, Application.EXT_PNG);
+
+			Assert.assertTrue("failed to create json file " + jsonFile.getAbsolutePath(), jsonFile.exists());
+			Assert.assertTrue("failed to create html file " + htmlFile.getAbsolutePath(), htmlFile.exists());
+			Assert.assertTrue("failed to create png file " + pngFile.getAbsolutePath(), pngFile.exists());
+			Assert.assertTrue("failed to create mnemonics in html file" + htmlFile.getAbsolutePath(), isFileCointains(htmlFile, "Mnemonic"));
+
+			tmpFile.add(jsonFile);
+			tmpFile.add(htmlFile);
+			tmpFile.add(pngFile);
+		}
+	}
+
+	@Test
+	public void verifyWalletHappyCase() {
+		if (setupFailed) {
+			return;
+		}
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_ok.json");
 		FileUtility.saveToFile(WALLET_JSON_OK, jsonFile);
-		
-		String [] args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, WALLET_JSON_PASS_PHRASE, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, WALLET_JSON_PASS_PHRASE, Application.SWITCH_WALLET, jsonFile,	Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.VERIFY_OK);
@@ -104,13 +135,13 @@ public class ApplicationTest {
 
 	@Test
 	public void createAndVerifyWalletHappyCase() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
 
 		// create wallet file
 		String passPhrase = "hi";
-		String [] args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase};
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
@@ -120,7 +151,33 @@ public class ApplicationTest {
 
 		// verify wallet file
 		String jsonFile = okMessageToJsonFileName(message);
-		args = new String [] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
+		app = new Application();
+		message = app.run(args);
+		isOkMessage = message.startsWith(Application.VERIFY_OK);
+
+		Assert.assertTrue(String.format("failed to verify paper wallet %s: expected message '%s ...', actual message: '%s'", jsonFile, Application.VERIFY_OK, message), isOkMessage);
+	}
+
+	@Test
+	public void createAndVerifyWalletBIP44HappyCase() {
+		if (setupFailed) {
+			return;
+		}
+
+		// create wallet file
+		String passPhrase = "hi";
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET_BIP44, Application.SWITCH_MNEMONICS };
+		Application app = new Application();
+		String message = app.run(args);
+		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
+
+		Assert.assertTrue(String.format("failed to write paper wallet to directory %s: expected message '%s ...', actual message: '%s'", tmpFilePath, Application.CREATE_OK, message), isOkMessage);
+		updateTempFiles(message);
+
+		// verify wallet file
+		String jsonFile = okMessageToJsonFileBip44(message);
+		args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		app = new Application();
 		message = app.run(args);
 		isOkMessage = message.startsWith(Application.VERIFY_OK);
@@ -130,121 +187,128 @@ public class ApplicationTest {
 
 	@Test
 	public void verifyWalletFileMissing() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
 
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_missing_file.json");
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force verification error for inexistent file. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 	}
 
 	@Test
 	public void verifyWalletBadPassPhrase() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
-		
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_bad_pass_phrase.json");
 		FileUtility.saveToFile(WALLET_JSON_OK, jsonFile);
-		
+
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE + " bad";
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force pass phrase verification error. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 		tmpFile.add(new File(jsonFile));
 	}
 
 	@Test
 	public void verifyWalletEmptyFile() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
-		
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_verify_empty.json");
 		FileUtility.saveToFile("", jsonFile);
-		
+
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force empty file verification error. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 		tmpFile.add(new File(jsonFile));
 	}
 
 	@Test
 	public void verifyWalletCorruptFileTruncated() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
-		
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_truncated.json");
 		FileUtility.saveToFile(WALLET_JSON_OK.substring(0, WALLET_JSON_OK.length() - 23), jsonFile);
-		
+
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force truncated file verification error. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 		tmpFile.add(new File(jsonFile));
 	}
 
 	@Test
 	public void verifyWalletBadVersion() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
-		
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_bad_version.json");
 		FileUtility.saveToFile(WALLET_JSON_CORRUPT_1, jsonFile);
-		
+
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force bad version verification error. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 		tmpFile.add(new File(jsonFile));
 	}
 
 	@Test
 	public void verifyWalletMissingElement() {
-		if(setupFailed) {
+		if (setupFailed) {
 			return;
 		}
-		
+
 		String jsonFile = String.format("%s%s%s", tmpFilePath, File.separator, "wallet_missing_elements.json");
 		FileUtility.saveToFile(WALLET_JSON_CORRUPT_2, jsonFile);
-		
+
 		String badPassPhrase = WALLET_JSON_PASS_PHRASE;
-		String [] args = new String [] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY};
+		String[] args = new String[] { Application.SWITCH_PASS_PHRASE, badPassPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isErrorMessage = message.startsWith(Application.VERIFY_ERROR);
-		
+
 		Assert.assertTrue(String.format("failed to force missing elements verification error. expected message '%s ...', actual message: '%s'", Application.VERIFY_ERROR, message), isErrorMessage);
 		tmpFile.add(new File(jsonFile));
 	}
 
 	private void updateTempFiles(String message) {
-		if(message == null || !message.startsWith(Application.CREATE_OK)) {
+		if (message == null || !message.startsWith(Application.CREATE_OK)) {
 			return;
 		}
 
-		File jsonFile = new File(okMessageToJsonFileName(message));
+		String file;
+		if (message.contains(Application.BIP44_WALLET)) {
+			file = okMessageToJsonFileBip44(message);
+		} else {
+			file = okMessageToJsonFileName(message);
+		}
+
+		File jsonFile = new File(file);
 		File htmlFile = deriveFile(jsonFile, Application.EXT_HTML);
 		File pngFile = deriveFile(jsonFile, Application.EXT_PNG);
 
@@ -257,6 +321,10 @@ public class ApplicationTest {
 		return message.substring(Application.CREATE_OK.length() + 1);
 	}
 
+	private String okMessageToJsonFileBip44(String message) {
+		return message.substring(Application.CREATE_OK.length() + 1, message.length() - Application.BIP44_WALLET.length());
+	}
+
 	private File deriveFile(File file, String newExtension) {
 		String baseName = getBaseName(file.getAbsolutePath());
 		return new File(String.format("%s.%s", baseName, newExtension));
@@ -264,5 +332,14 @@ public class ApplicationTest {
 
 	private String getBaseName(String jsonName) {
 		return jsonName.substring(0, jsonName.lastIndexOf("."));
+	}
+
+	private boolean isFileCointains(File file, String value) {
+		try {
+			List<String> readAllLines = Files.readAllLines(file.toPath());
+			return readAllLines.toString().contains(value);
+		} catch (IOException e) {
+			return false;
+		}
 	}
 }

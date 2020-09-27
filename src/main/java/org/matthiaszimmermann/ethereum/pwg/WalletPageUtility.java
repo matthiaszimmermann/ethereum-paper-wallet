@@ -138,4 +138,22 @@ public class WalletPageUtility extends HtmlUtility {
 			throw new RuntimeException("Failed to load content from wallet file", e);
 		}
 	}
+
+	public static String instertMnemonic(PaperWalletBIP44 pw, String html) {
+		return insertAfterWord(html, createMnemonic(pw), "File Name</p>");
+	}
+
+	public static StringBuffer createMnemonic(PaperWalletBIP44 pw) {
+		StringBuffer mnemonicBuffer = new StringBuffer();
+		HtmlUtility.addOpenDiv(mnemonicBuffer, CSS_CONTENT);
+		HtmlUtility.addContent(mnemonicBuffer, pw.getMnemonic());
+		HtmlUtility.addCloseDiv(mnemonicBuffer);
+		HtmlUtility.addParagraph(mnemonicBuffer, "Mnemonic", CSS_CAPTION);
+		return mnemonicBuffer;
+	}
+
+	public static String insertAfterWord(String from, StringBuffer toInsert, String afterWord) {
+		return new StringBuffer(from).insert(from.lastIndexOf(afterWord) + afterWord.length(), toInsert).toString();
+	}
+
 }

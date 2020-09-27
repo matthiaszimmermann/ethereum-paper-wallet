@@ -32,11 +32,15 @@ public class PaperWallet {
 
 	private static PassPhraseUtility passPhraseUtility = new PassPhraseUtility();
 
-	private Credentials credentials = null;
-	private String fileName;
-	private String pathToFile;
-	private String passPhrase;
-	
+	protected Credentials credentials = null;
+	protected String fileName;
+	protected String pathToFile;
+	protected String passPhrase;
+
+	protected PaperWallet() {
+		super();
+	}
+
 	public PaperWallet(String passPhrase, File walletFile) {
 		// check if provided file exists
 		if(!walletFile.exists() || walletFile.isDirectory()) { 
@@ -170,7 +174,7 @@ public class PaperWallet {
 		return new File(pathToFile, fileName);
 	}
 
-	private String setPassPhrase(String passPhrase) {
+	protected String setPassPhrase(String passPhrase) {
 		if(passPhrase == null || passPhrase.isEmpty()) {
 			return passPhraseUtility.getPassPhrase(PHRASE_SIZE_DEFAULT);
 		}
@@ -178,7 +182,7 @@ public class PaperWallet {
 		return passPhrase;
 	}
 
-	private String setPathToFile(String pathToFile) {
+	protected String setPathToFile(String pathToFile) {
 		if(pathToFile == null || pathToFile.isEmpty()) {
 			return getPathToFileDefault();
 		}

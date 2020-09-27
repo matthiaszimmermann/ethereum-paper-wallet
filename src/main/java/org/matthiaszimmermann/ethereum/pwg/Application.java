@@ -20,10 +20,13 @@ public class Application {
 	public static final String SWITCH_NONCE = "-n";
 	public static final String SWITCH_VERIFY = "-v";
 	public static final String SWITCH_SILENT = "-s";
+	public static final String SWITCH_WALLET_BIP44 = "-b";
+	public static final String SWITCH_MNEMONICS = "-m";
 	public static final String SWITCH_HELP = "-h";
 	
 	public static final String CREATE_OK = "WALLET CREATION OK";
 	public static final String CRATE_ERROR = "WALLET CREATION ERROR";
+	public static final String BIP44_WALLET = " BIP44-WALLET";
 	
 	public static final String VERIFY_OK = "WALLET VERIFICATION OK";
 	public static final String VERIFY_ERROR = "WALLET VERIFICATION ERROR";
@@ -48,6 +51,12 @@ public class Application {
 
 	@Parameter(names = {SWITCH_AMOUNT, "--amount"}, description = "amount [ethers] for offline transaction")
 	private Double amount = new Double(0.01);
+
+	@Parameter(names = {SWITCH_WALLET_BIP44, "--wallet-bip44"}, description = "Bip44 wallet type with mnemonics (Bip39)")
+	private boolean bip44Wallet = false;
+
+	@Parameter(names = {SWITCH_MNEMONICS, "--mnemonics"}, description = "shows mnenomics in htlm file")
+	private boolean mnemonics = false;
 
 	@Parameter(names = {SWITCH_VERIFY, "--verify"}, description = "verify the specified wallet file")
 	private boolean verify = false;
@@ -154,17 +163,17 @@ public class Application {
 		log("creating wallet ...");
 		
 		try {
-			pw = new PaperWallet(passPhrase, targetDirectory);
-		}
-		catch(Exception e) {
+			pw = this.createPaperWallet();
+		} catch (Exception e) {
 			return String.format("%s %s", CRATE_ERROR, e.getLocalizedMessage());
 		}
-		
+
 		log("wallet file successfully created");
 		log(String.format("wallet pass phrase: '%s'", pw.getPassPhrase()));
 		log(String.format("wallet file location: %s", pw.getFile().getAbsolutePath()));
 
 		String html = WalletPageUtility.createHtml(pw);
+		html = insertMnemonic(pw, html);
 		byte [] qrCode = QrCodeUtility.contentToPngBytes(pw.getAddress(), 256);
 
 		String path = pw.getPathToFile();
@@ -178,7 +187,21 @@ public class Application {
 		log(String.format("html wallet: %s", htmlFile));
 		log(String.format("address qr code: %s", pngFile));
 		
-		return String.format("%s %s", CREATE_OK, pw.getFile().getAbsolutePath());
+		return String.format("%s %s%s", CREATE_OK, pw.getFile().getAbsolutePath(), bip44Wallet?BIP44_WALLET:"");
+	}
+
+	private String insertMnemonic(PaperWallet pw, String html) {
+		if (bip44Wallet && mnemonics) {
+			return WalletPageUtility.instertMnemonic((PaperWalletBIP44) pw, html);
+		}
+		return html;
+	}
+
+	private PaperWallet createPaperWallet() throws Exception {
+		if (bip44Wallet) {
+			return new PaperWalletBIP44(passPhrase, targetDirectory);
+		}
+		return new PaperWallet(passPhrase, targetDirectory);
 	}
 
 	private void parseCommandLine(String [] args) {
