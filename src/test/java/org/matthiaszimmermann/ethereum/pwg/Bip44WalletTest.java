@@ -94,35 +94,6 @@ public class Bip44WalletTest {
 		assertEquals("0x8FB2804A678F56de243EFE0f75e517dC771F09db".toLowerCase(), mnemonic2address(mnemonic, password, "m/44'/60'/0'/0/1", true).toLowerCase());
 	}
 
-
-	@Test
-	public void addressTestBatches() {
-		StringBuffer addresses = new StringBuffer();
-		int idxFrom = 0;
-
-		for(int i = idxFrom; i < idxFrom + 20; i++) {
-			String mnemonic = createMnemonic(i, 0);
-			String address = mnemonic2address(mnemonic, "", Bip44PathValues.ethTrezor(), true);
-
-			System.out.println(i + " " + address + " " + mnemonic);
-
-			if(addresses.length() > 0)  {
-				addresses.append(",");
-			}
-
-			addresses.append(address);
-		}
-
-		printMultyAddressRequest(addresses.toString());
-	}
-
-	private void printMultyAddressRequest(String addresses) {
-		String prefix = "https://api.etherscan.io/api?module=account&action=balancemulti&address=";
-		String postfix = "&tag=latest&apikey=X2NG919EFYIFQUZPCJJ9YEPQBFZQTP3N6U";
-
-		System.out.println(prefix + addresses + postfix);
-	}
-
 	public String mnemonic2privateKey(String mnemonic, String password, String path, boolean sysoutPrint) {
 		Credentials credentials = Bip44CredentialsUtility.createBip44Credentials(mnemonic, password, path);
 		ECKeyPair keyPair = credentials.getEcKeyPair();

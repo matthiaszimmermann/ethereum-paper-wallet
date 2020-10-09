@@ -168,7 +168,6 @@ public class Application {
 		log(String.format("wallet file location: %s", pw.getFile().getAbsolutePath()));
 
 		String html = WalletPageUtility.createHtml(pw);
-//		html = insertMnemonic(pw, html);
 		byte [] qrCode = QrCodeUtility.contentToPngBytes(pw.getAddress(), 256);
 
 		String path = pw.getPathToFile();
@@ -184,13 +183,6 @@ public class Application {
 		
 		return String.format("%s %s", CREATE_OK, pw.getFile().getAbsolutePath());
 	}
-//
-//	private String insertMnemonic(PaperWallet pw, String html) {
-//		if (bip44Wallet && mnemonics) {
-//			return WalletPageUtility.instertMnemonic((PaperWalletBIP44) pw, html);
-//		}
-//		return html;
-//	}
 
 	private PaperWallet createPaperWallet() throws Exception {
 		return new PaperWallet(passPhrase, targetDirectory, mnemonics);
