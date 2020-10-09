@@ -90,17 +90,17 @@ public class ApplicationTest {
 			return;
 		}
 
-		String passPhrase = "test pass phrase";
-		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET_BIP44, Application.SWITCH_MNEMONICS };
+		String mnemonic = "kite scan embark dismiss text syrup salon butter cross rude hammer course";
+		String passPhrase = "password";
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_MNEMONICS, mnemonic };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
 
 		Assert.assertTrue(String.format("failed to write paper wallet to directory %s: expected message '%s ...', actual message: '%s'", tmpFilePath, Application.CREATE_OK, message), isOkMessage);
-		Assert.assertTrue(String.format("failed to creating BIP44 Wallet %s", Application.BIP44_WALLET), message.contains(Application.BIP44_WALLET));
 
 		if (isOkMessage) {
-			File jsonFile = new File(okMessageToJsonFileBip44(message));
+			File jsonFile = new File(okMessageToJsonFileName(message));
 			File htmlFile = deriveFile(jsonFile, Application.EXT_HTML);
 			File pngFile = deriveFile(jsonFile, Application.EXT_PNG);
 
@@ -167,7 +167,7 @@ public class ApplicationTest {
 
 		// create wallet file
 		String passPhrase = "hi";
-		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET_BIP44, Application.SWITCH_MNEMONICS };
+		String[] args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase };
 		Application app = new Application();
 		String message = app.run(args);
 		boolean isOkMessage = message.startsWith(Application.CREATE_OK);
@@ -176,7 +176,7 @@ public class ApplicationTest {
 		updateTempFiles(message);
 
 		// verify wallet file
-		String jsonFile = okMessageToJsonFileBip44(message);
+		String jsonFile = okMessageToJsonFileName(message);
 		args = new String[] { Application.SWITCH_DIRECTORY, tmpFilePath, Application.SWITCH_PASS_PHRASE, passPhrase, Application.SWITCH_WALLET, jsonFile, Application.SWITCH_VERIFY };
 		app = new Application();
 		message = app.run(args);
@@ -301,13 +301,7 @@ public class ApplicationTest {
 			return;
 		}
 
-		String file;
-		if (message.contains(Application.BIP44_WALLET)) {
-			file = okMessageToJsonFileBip44(message);
-		} else {
-			file = okMessageToJsonFileName(message);
-		}
-
+		String file = okMessageToJsonFileName(message);
 		File jsonFile = new File(file);
 		File htmlFile = deriveFile(jsonFile, Application.EXT_HTML);
 		File pngFile = deriveFile(jsonFile, Application.EXT_PNG);
@@ -319,10 +313,6 @@ public class ApplicationTest {
 
 	private String okMessageToJsonFileName(String message) {
 		return message.substring(Application.CREATE_OK.length() + 1);
-	}
-
-	private String okMessageToJsonFileBip44(String message) {
-		return message.substring(Application.CREATE_OK.length() + 1, message.length() - Application.BIP44_WALLET.length());
 	}
 
 	private File deriveFile(File file, String newExtension) {

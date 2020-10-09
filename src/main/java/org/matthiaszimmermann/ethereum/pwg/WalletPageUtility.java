@@ -3,7 +3,7 @@ package org.matthiaszimmermann.ethereum.pwg;
 public class WalletPageUtility extends HtmlUtility {
 	
 	// TODO verify version with the one in the pom.xml
-	public static final String VERSION = "0.3.0-SNAPSHOT";
+	public static final String VERSION = "0.4.0-SNAPSHOT";
 	public static final String REPOSITORY = "https://github.com/matthiaszimmermann/ethereum-paper-wallet";
 
 	public static final String TITLE = "Ethereum Paper Wallet";
@@ -107,6 +107,16 @@ public class WalletPageUtility extends HtmlUtility {
 		HtmlUtility.addParagraph(html, "Pass Phrase", CSS_CAPTION);
 		
 		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
+		HtmlUtility.addContent(html, wallet.getMnemonic());
+		HtmlUtility.addCloseDiv(html);
+		HtmlUtility.addParagraph(html, "Mnemonic", CSS_CAPTION);
+		
+		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
+		HtmlUtility.addContent(html, wallet.getBip44Path());
+		HtmlUtility.addCloseDiv(html);
+		HtmlUtility.addParagraph(html, "BIP 44 Path", CSS_CAPTION);
+		
+		HtmlUtility.addOpenDiv(html, CSS_CONTENT);
 		HtmlUtility.addContent(html, walletFileContent.replace(",\"", ", \""));
 		HtmlUtility.addCloseDiv(html);
 		HtmlUtility.addParagraph(html, "File Content", CSS_CAPTION);
@@ -137,19 +147,6 @@ public class WalletPageUtility extends HtmlUtility {
 		catch (Exception e) {
 			throw new RuntimeException("Failed to load content from wallet file", e);
 		}
-	}
-
-	public static String instertMnemonic(PaperWalletBIP44 pw, String html) {
-		return insertAfterWord(html, createMnemonic(pw), "File Name</p>");
-	}
-
-	public static StringBuffer createMnemonic(PaperWalletBIP44 pw) {
-		StringBuffer mnemonicBuffer = new StringBuffer();
-		HtmlUtility.addOpenDiv(mnemonicBuffer, CSS_CONTENT);
-		HtmlUtility.addContent(mnemonicBuffer, pw.getMnemonic());
-		HtmlUtility.addCloseDiv(mnemonicBuffer);
-		HtmlUtility.addParagraph(mnemonicBuffer, "Mnemonic", CSS_CAPTION);
-		return mnemonicBuffer;
 	}
 
 	public static String insertAfterWord(String from, StringBuffer toInsert, String afterWord) {

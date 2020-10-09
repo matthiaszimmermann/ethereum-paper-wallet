@@ -34,7 +34,7 @@ public class PaperWalletBIP44Test {
 		String password = "password";
 
 		// generation
-		PaperWalletBIP44 pw = new PaperWalletBIP44(password, tempDir.getAbsolutePath());
+		PaperWallet pw = new PaperWallet(password, tempDir.getAbsolutePath(), null);
 		Credentials expectedCredentials = pw.getCredentials(password);
 
 		// loading form file
@@ -51,12 +51,12 @@ public class PaperWalletBIP44Test {
 		String password = "password";
 
 		// generation
-		PaperWalletBIP44 pw = new PaperWalletBIP44(password, tempDir.getAbsolutePath());
+		PaperWallet pw = new PaperWallet(password, tempDir.getAbsolutePath(), null);
 		String mnemonic = pw.getMnemonic();
 		Credentials expectedCredentials = pw.getCredentials(password);
 
 		// generating from mnemonic
-		PaperWallet pw2 = new PaperWalletBIP44(password, tempDir.getAbsolutePath(), mnemonic);
+		PaperWallet pw2 = new PaperWallet(password, tempDir.getAbsolutePath(), mnemonic);
 		Credentials actualCredentials = pw2.getCredentials(password);
 
 		assertEquals(expectedCredentials.getEcKeyPair().getPrivateKey(), actualCredentials.getEcKeyPair().getPrivateKey());
@@ -79,12 +79,12 @@ public class PaperWalletBIP44Test {
 		String exepectedAddress = "0x03C4b5778a3DEd3957890CFC9251AA1D1a521916";
 
 		// generating from mnemonic
-		PaperWallet pw = new PaperWalletBIP44(password, tempDir.getAbsolutePath(), mnemonic);
+		PaperWallet pw = new PaperWallet(password, tempDir.getAbsolutePath(), mnemonic);
 		Credentials actualCredentials = pw.getCredentials(password);
 		String actualPk = Numeric.toHexStringWithPrefix(actualCredentials.getEcKeyPair().getPrivateKey());
 
-		assertEquals(expectedPk, actualPk);
 		assertEquals(exepectedAddress.toLowerCase(), actualCredentials.getAddress());
+		assertEquals(expectedPk, actualPk);
 	}
 
 	static File createTempDir() throws Exception {

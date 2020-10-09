@@ -2,7 +2,9 @@
 
 ## Application Description
 
-Command line tool to create (offline) Ethereum paper wallets.
+Command line tool to create (offline) Ethereum paper wallets. 
+For the mnemonic sentences the BIP39 specification is used. 
+For the wallet address path relies on the BIP44 specification.
 
 ## Demo Output
 
@@ -29,7 +31,7 @@ The result of the Maven build is an executable JAR file.
 Use the following command to create a paper wallet.
 
 ```
-java -jar target/epwg-0.3.0-SNAPSHOT.jar -d C:\Users\mzi\AppData\Local\Temp -p 'test pass phrase'
+java -jar target/epwg-0.4.0-SNAPSHOT.jar -d /Users/matthiaszimmermann/tmp -p 'password'
 ```
 
 This will lead to some information on the console
@@ -37,24 +39,24 @@ This will lead to some information on the console
 ```
 creating wallet ...
 wallet file successfully created
-wallet pass phrase: 'test pass phrase'
-wallet file location: C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json
+wallet pass phrase: 'password'
+wallet file location: /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.json
 writing additional output files ...
-html wallet: C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.html
-address qr code: C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.png
+html wallet: /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.html
+address qr code: /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.png
 ```
 
 Three file are created by the tool as indicated in the output above
-* The actual wallet file (UTC--2017-01-14T11-34-23.83... .json)
-* The HTML file for printing (UTC--2017-01-14T11-34-23.83... .html)
-* The image file with the QR code for the paper wallet address (UTC--2017-01-14T11-34-23.83... .png)
+* The actual wallet file (UTC--2020-10-08T07-42-39... .json)
+* The HTML file for printing (UTC--2020-10-08T07-42-39... .html)
+* The image file with the QR code for the paper wallet address (UTC--2020-10-08T07-42-39... .png)
 
 ### Verifying a (Paper) Wallet
 
 The tool also allows to verify a provided wallet file against a provided pass phrase.
 
 ```
-java -jar target/epwg-0.3.0-SNAPSHOT.jar -p 'test pass phrase' -w  "C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json" -v
+java -jar target/epwg-0.4.0-SNAPSHOT.jar -p 'password' -w /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.json -v
 ```
 
 This will lead to some information on the console
@@ -62,16 +64,37 @@ This will lead to some information on the console
 ```
 veriying wallet file ...
 wallet file successfully verified
-wallet file: C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json
-pass phrase: test pass phrase
+wallet file: /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.json
+pass phrase: password
 ```
+
+### Creating a Paper Wallet with a given Mnemonic
+ 
+Use the following command to create a paper wallet for a specified menmonic "kite scan embark dismiss text syrup salon butter cross rude hammer course".
+
+```
+java -jar target/epwg-0.4.0-SNAPSHOT.jar -d /Users/matthiaszimmermann/tmp -p 'password' -m 'kite scan embark dismiss text syrup salon butter cross rude hammer course'
+```
+
+This will lead to some information on the console
+
+```
+creating wallet ...
+wallet file successfully created
+wallet pass phrase: 'password'
+wallet file location: /Users/matthiaszimmermann/tmp/UTC--2020-10-09T10-07-55.955089000Z--03c4b5778a3ded3957890cfc9251aa1d1a521916.json
+writing additional output files ...
+html wallet: /Users/matthiaszimmermann/tmp/UTC--2020-10-09T10-07-55.955089000Z--03c4b5778a3ded3957890cfc9251aa1d1a521916.html
+address qr code: /Users/matthiaszimmermann/tmp/UTC--2020-10-09T10-07-55.955089000Z--03c4b5778a3ded3957890cfc9251aa1d1a521916.png
+```
+
 
 ### Creating an offline Transaction
 
 The tool further allows to create an offline transaction for provided wallet details
 
 ```
-java -jar target/epwg-0.3.0-SNAPSHOT.jar -p 'test pass phrase' -w  "C:\Users\mzi\AppData\Local\Temp\UTC--2017-01-14T11-34-23.830000000Z--b86bab51c139f9662ccea6547a5e34e13d144bb0.json" -t -t 0x025403ff4c543c660423543a9c5a3cc2a02e2f1f -a 0.0123
+java -jar target/epwg-0.4.0-SNAPSHOT.jar -p 'password' -w /Users/matthiaszimmermann/tmp/UTC--2020-10-08T07-42-39.594331000Z--9a1d5dd27b3b9ded07a25e4dbf0a9c539a5edd27.json -t 0x025403ff4c543c660423543a9c5a3cc2a02e2f1f -a 0.0123
 ```
 
 leading to the following output.
@@ -82,7 +105,7 @@ Amount [Ether]: 0.0123
 Nonce: 0
 Gas price [Wei]: 20000000000
 Gas limit [Wei]: 21000
-curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xf86b808504a817c80082520894025403ff4c543c660423543a9c5a3cc2a02e2f1f872bb2c8eabcc000801ba08c5b25a10edb8e72518f4e6f51527df718d090f80cefcf024669340fe29cf78aa0124a95546dc897b6987c2b05efd2be7ed976318174a6bf9300d6f11c1d5d2da1"],"id":1}' -H "Content-Type: application/json" https://mainnet.infura.io/<your-infura-token>
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xf86b808504a817c80082520894025403ff4c543c660423543a9c5a3cc2a02e2f1f872bb2c8eabcc000801ba0374026a8b52870008143f09beae2648da1b891ebf71260f1c0d450854ce087a2a07929efec1ea48ef78afb731af5a50273a8a94821c59638d67b9d1dad6c27038e"],"id":1}' -H "Content-Type: application/json" https://mainnet.infura.io/<infura-token>
 ```
 
 The last line may be used to send the transaction to the Etherem network (using your infura token). 

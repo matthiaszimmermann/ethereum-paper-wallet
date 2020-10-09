@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.MnemonicUtils;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.Wallet;
@@ -36,13 +38,14 @@ public class PaperWallet {
 	protected String fileName;
 	protected String pathToFile;
 	protected String passPhrase;
+	protected String mnemonic;
+	protected String bip44path;
 
 	protected PaperWallet() {
 		super();
 	}
 
 	public PaperWallet(String passPhrase, File walletFile) {
-		// check if provided file exists
 		if(!walletFile.exists() || walletFile.isDirectory()) { 
 			System.err.println(String.format("%s file does not exist or is a directory", WALLET_ERROR));
 		}
@@ -55,7 +58,37 @@ public class PaperWallet {
 		}
 	}
 
-	public PaperWallet(String passPhrase, String pathToFile) throws Exception {
+	public PaperWallet(String passPhrase, String pathToFile, String mnemonics) 
+			throws CipherException, IOException 
+	{
+		this(passPhrase, pathToFile, mnemonics, Bip44PathValues.ethDefault());
+	}
+
+	public PaperWallet(String passPhrase, String pathToFile, String mnemonics, String bip44Path) 
+			throws CipherException, IOException  
+	{
+		this.passPhrase = setPassPhrase(passPhrase);
+		this.pathToFile = setPathToFile(pathToFile);
+
+		if (mnemonics == null) {
+			byte[] initialEntropy = new byte[16];
+			SecureRandomUtils.secureRandom().nextBytes(initialEntropy);
+			this.mnemonic = MnemonicUtils.generateMnemonic(initialEntropy);
+		} 
+		else {
+			if(!MnemonicUtils.validateMnemonic(mnemonics)) {
+				throw new RuntimeException("Invalid mnemonic!");
+			}
+			
+			this.mnemonic = mnemonics;
+		}
+
+		this.bip44path = bip44Path;
+		this.credentials = Bip44CredentialsUtility.createBip44Credentials(mnemonic, passPhrase, bip44path);
+		this.fileName = WalletUtils.generateWalletFile(passPhrase, credentials.getEcKeyPair(), new File(pathToFile), false);
+	}
+
+	public void PaperWalletOldConstructor(String passPhrase, String pathToFile) throws Exception {
 		this.passPhrase = setPassPhrase(passPhrase);
 		this.pathToFile = setPathToFile(pathToFile);
 
@@ -159,6 +192,14 @@ public class PaperWallet {
 
 	public String getFileName() {
 		return fileName;
+	}
+
+	public String getMnemonic() {
+		return mnemonic;
+	}
+
+	public String getBip44Path() {
+		return bip44path;
 	}
 
 	public String getFileContent() throws Exception {
