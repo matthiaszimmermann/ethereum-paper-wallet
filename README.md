@@ -51,6 +51,19 @@ Three file are created by the tool as indicated in the output above
 * The HTML file for printing (UTC--2020-10-08T07-42-39... .html)
 * The image file with the QR code for the paper wallet address (UTC--2020-10-08T07-42-39... .png)
 
+### Providing the Password in a more secure way
+
+The above mentioned commands will show the password on screen while typing it.
+In addition the command is retained in the command history. 
+These drawbacks can be avoided using the mechanism provided below.
+
+```
+java -jar target/epwg-0.4.0-SNAPSHOT.jar -d data -p $(read -s -p "password: "; echo $REPLY)
+```
+
+The same modification may also be used for all commands provided in the examples below.
+Special thanks to [dkhokhlov](https://github.com/dkhokhlov) for the hint in [issue #7](https://github.com/matthiaszimmermann/ethereum-paper-wallet/issues/7).
+
 ### Verifying a (Paper) Wallet
 
 The tool also allows to verify a provided wallet file against a provided pass phrase.
